@@ -1,6 +1,6 @@
 # jasaku_app
 
-A new Flutter project.
+Projek akhir mahassiswa.
 
 ## Getting Started
 
@@ -14,3 +14,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+repo ini isinya cuma UI flutter untuk file PHP databasse bisa cek di https://github.com/VarandHariri/jasakuapp
+
