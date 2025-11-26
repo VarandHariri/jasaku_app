@@ -378,10 +378,6 @@ class HomeScreen extends StatelessWidget {
           icon: Icon(Icons.shopping_cart),
           label: 'Orders',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
       ],
       onTap: (index) {
         if (index == 1) { // Search tab

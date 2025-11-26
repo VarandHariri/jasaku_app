@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:jasaku_app/models/service.dart';
-
+import 'package:jasaku_app/screens/chat/chat_detail_screen.dart';
+import 'package:jasaku_app/screens/order/create_order_screen.dart';
 
 // Uses shared `Service` model from `lib/models/service.dart`
 class ServiceDetailScreen extends StatelessWidget {
@@ -133,6 +134,7 @@ class ServiceDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+      // GANTI bagian bottomNavigationBar yang lama dengan ini:
       bottomNavigationBar: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -151,7 +153,18 @@ class ServiceDetailScreen extends StatelessWidget {
               child: OutlinedButton.icon(
                 icon: Icon(Icons.chat),
                 label: Text('Chat dan Nego'),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatDetailScreen(
+                        contactName: serviceData.seller,
+                        contactInitial: serviceData.seller.isNotEmpty ? serviceData.seller[0] : 'S',
+                        service: serviceData,
+                      ),
+                    ),
+                  );
+                },
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -162,7 +175,14 @@ class ServiceDetailScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 icon: Icon(Icons.shopping_cart),
                 label: Text('Order Sekarang'),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateOrderScreen(service: serviceData),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 12),
