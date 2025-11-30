@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:jasaku_app/providers/auth_provider.dart';
+import 'package:jasaku_app/providers/wishlist_provider.dart';
 import 'package:jasaku_app/screens/auth/login_screen.dart';
 import 'package:jasaku_app/screens/home/home_screen.dart';
 import 'package:jasaku_app/screens/chat/chat_list_screen.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => WishlistProvider()),
       ],
       child: MaterialApp(
         title: 'Jasaku App',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:jasaku_app/models/user_model.dart';
 import 'package:jasaku_app/providers/auth_provider.dart';
+import 'package:jasaku_app/services/api_service.dart';
 
 class BecomeProviderScreen extends StatefulWidget {
   final User user;
@@ -24,15 +25,46 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
       });
 
       try {
-        // Update user role menjadi provider
+        // Send application to server
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        await authProvider.updateUserRole('provider');
+        final user = authProvider.user;
+        final payload = {
+          'user_id': user?.id ?? 0,
+          'description': _descriptionController.text.trim(),
+        };
 
-        setState(() {
-          _isLoading = false;
-        });
+        final res = await ApiService.post('api/user/become_provider.php', payload);
 
-        Navigator.pop(context, true); // Return true to indicate success
+        if (res is Map && res['success'] == true) {
+          // Update local user state: set role and providerDescription
+          final updatedUser = User(
+            id: user?.id,
+            nrp: user?.nrp ?? '',
+            nama: user?.nama ?? '',
+            email: user?.email ?? '',
+            phone: user?.phone,
+            profileImage: user?.profileImage,
+            role: 'provider',
+            isVerifiedProvider: false,
+            providerSince: DateTime.now(),
+            providerDescription: _descriptionController.text.trim(),
+          );
+
+          await authProvider.updateUser(updatedUser);
+
+          setState(() {
+            _isLoading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(res['message'] ?? 'Permohonan menjadi penyedia dikirim.'), backgroundColor: Colors.green),
+          );
+
+          Navigator.pop(context, true); // Return true to indicate success
+        } else {
+          final message = (res is Map && res['message'] != null) ? res['message'].toString() : 'Gagal mengajukan permohonan';
+          throw Exception(message);
+        }
       } catch (e) {
         setState(() {
           _isLoading = false;

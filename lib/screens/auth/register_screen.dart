@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jasaku_app/screens/auth/login_screen.dart';
+import 'package:jasaku_app/services/user_service.dart';
+import 'package:jasaku_app/exceptions/auth_exception.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -35,26 +37,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         _isLoading = true;
       });
+      try {
+        final nrp = _nrpController.text.trim();
+        final nama = _namaController.text.trim();
+        final email = _emailController.text.trim();
+        final phone = _phoneController.text.trim();
+        final password = _passwordController.text;
 
-      // Simulate API call delay
-      await Future.delayed(Duration(seconds: 2));
+        // Panggil API register
+        final user = await UserService.register(
+          nrp: nrp,
+          nama: nama,
+          email: email,
+          phone: phone.isEmpty ? null : phone,
+          password: password,
+        );
 
-      setState(() {
-        _isLoading = false;
-      });
+        // Jika ingin, bisa langsung login menggunakan returned user.
+        // Untuk sekarang, arahkan ke layar login dan beri pesan sukses.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registrasi berhasil! Silakan login.'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      // Show success message and navigate to login
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Registrasi berhasil! Silakan login.'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      } catch (e) {
+        String msg;
+        if (e is AuthException) {
+          msg = e.message;
+        } else {
+          msg = e?.toString() ?? 'Registrasi gagal';
+        }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

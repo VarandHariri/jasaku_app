@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:jasaku_app/providers/auth_provider.dart';
 import 'package:jasaku_app/screens/profile/become_provider_screen.dart';
+import 'package:jasaku_app/screens/profile/wishlist_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -26,7 +27,8 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () async {
                 Navigator.pop(context);
                 await authProvider.logout();
-                // Automatically navigates to login karena AuthWrapper
+                // Clear navigation stack and go to Login screen
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
               },
               child: Text(
                 'Logout', 
@@ -134,7 +136,10 @@ class ProfileScreen extends StatelessWidget {
               'Wishlist', 
               Icons.favorite_border, 
               onTap: () {
-                // Navigate to wishlist
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WishlistScreen()),
+                );
               }
             ),
             _buildProfileItem(

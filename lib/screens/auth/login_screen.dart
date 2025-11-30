@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:jasaku_app/models/user_model.dart';
 import 'package:jasaku_app/providers/auth_provider.dart';
+import 'package:jasaku_app/services/user_service.dart';
 import 'package:jasaku_app/screens/auth/register_screen.dart';
+import 'package:jasaku_app/screens/auth/forgot_password_screen.dart';
+import 'package:jasaku_app/exceptions/auth_exception.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -23,28 +26,68 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
+      try {
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
 
-      // Simulate API call - dalam real app, ini akan call API backend
-      await Future.delayed(Duration(seconds: 2));
+        final user = await UserService.login(email, password);
 
-      // Create dummy user data (dalam real app, ini dari API response)
-      final user = User(
-        id: 1,
-        nrp: '3224600005',
-        nama: 'Angga Dwi Prastyo',
-        email: _emailController.text.trim(),
-        role: 'customer',
-      );
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.login(user);
 
-      // Save login data menggunakan provider
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.login(user);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Navigation handled oleh AuthWrapper, tidak perlu push manual
+        // Success: AuthWrapper akan menangani navigasi berdasarkan status login
+      } catch (e) {
+        String msg;
+        if (e is AuthException) {
+          msg = e.message;
+          final lower = msg.toLowerCase();
+          if (lower.contains('password') || lower.contains('wrong') || lower.contains('salah')) {
+            // Show a friendly dialog for wrong password
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text('Password Salah'),
+                content: Text('Kata sandi yang Anda masukkan tidak cocok. Periksa kembali atau gunakan fitur Lupa Password.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text('Lupa Password'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Tutup'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(msg),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } else {
+          msg = e?.toString() ?? 'Login gagal';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(msg),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -204,9 +247,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Navigate to forgot password screen
               },
               child: Text(
-                'Lupa Password?',
-                style: TextStyle(color: Colors.blue),
-              ),
+                  'Lupa Password?',
+                  style: TextStyle(color: Colors.blue),
+                ),
             ),
           ),
         ],
